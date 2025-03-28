@@ -1,8 +1,8 @@
 import streamlit as st
-import openai
+from openai import OpenAI
+import os
 
 st.set_page_config(page_title="SpanishFactory", layout="centered")
-
 st.title("🇪🇸 SpanishFactory – Generador de ejercicios ELE con IA")
 st.markdown("Crea ejercicios personalizados para tus clases de español en segundos.")
 
@@ -13,7 +13,8 @@ if not api_key:
     st.warning("Por favor, introduce tu clave API de OpenAI para continuar.")
     st.stop()
 
-openai.api_key = api_key
+# Crear cliente OpenAI
+client = OpenAI(api_key=api_key)
 
 # Inputs del usuario
 nivel = st.selectbox("🧭 Nivel", ["A1", "A2", "B1", "B2", "C1"])
@@ -31,15 +32,14 @@ en formato "{tipo}". Incluye instrucciones claras y de 3 a 5 ítems, adecuados a
 
 Formato de salida: solo el ejercicio, bien presentado.
 """
-
         try:
-            respuesta = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=800
             )
-            ejercicio = respuesta['choices'][0]['message']['content']
+            ejercicio = response.choices[0].message.content
             st.markdown("### 📝 Ejercicio generado:")
             st.write(ejercicio)
         except Exception as e:
